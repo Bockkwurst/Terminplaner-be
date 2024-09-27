@@ -41,13 +41,39 @@ namespace Terminplaner_be.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetAppointment(Guid id) 
+        public IActionResult GetAppointmentById(Guid id) 
         {
             var appointment = _context.Appointments.Find(id);
 
             if (appointment == null)
             {
                 return NotFound($"Apointment with Id {id} not found.");
+            }
+            return Ok(appointment);
+        }
+
+        [HttpGet("all")]
+        public IActionResult GetAllAppointments()
+        {
+            try
+            {
+                var appointments = _context.Appointments.ToList();
+                return Ok(appointments);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("{title}")]
+        public IActionResult GetAppointmentByTitle(string title)
+        {
+            var appointment = _context.Appointments.Find(title);
+
+            if (appointment == null)
+            {
+                return NotFound($"Appointment with Title {title} not found.");
             }
             return Ok(appointment);
         }
