@@ -66,16 +66,23 @@ namespace Terminplaner_be.Controllers
             }
         }
 
-        [HttpGet("{title}")]
+        [HttpGet("/search/{title}")]
         public IActionResult GetAppointmentByTitle(string title)
         {
-            var appointment = _context.Appointments.Find(title);
-
-            if (appointment == null)
+            try
             {
-                return NotFound($"Appointment with Title {title} not found.");
+                var appointment = _context.Appointments.FirstOrDefault(a => a.Title == title);
+
+                if (appointment == null)
+                {
+                    return NotFound($"Appointment with Title {title} not found.");
+                }
+                return Ok(appointment);
             }
-            return Ok(appointment);
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
         [HttpPut("{id}")]
@@ -92,18 +99,24 @@ namespace Terminplaner_be.Controllers
             {
                 return NotFound($"Appointment with ID {id} not found.");
             }
+            try
+            {
+                appointment.Title = appointmentDto.Title;
+                appointment.StartDate = appointmentDto.StartDate;
+                appointment.EndDate = appointmentDto.EndDate;
+                appointment.AllDay = appointmentDto.AllDay;
+                appointment.Color = appointmentDto.Color;
+                appointment.SecondaryColor = appointmentDto.SecondaryColor;
 
-            appointment.Title = appointmentDto.Title;
-            appointment.StartDate = appointmentDto.StartDate;
-            appointment.EndDate = appointmentDto.EndDate;
-            appointment.AllDay = appointmentDto.AllDay;
-            appointment.Color = appointmentDto.Color;
-            appointment.SecondaryColor = appointmentDto.SecondaryColor;
+                _context.Appointments.Update(appointment);
+                _context.SaveChanges();
 
-            _context.Appointments.Update(appointment);
-            _context.SaveChanges();
-
-            return Ok(appointment);
+                return Ok(appointment);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         [HttpDelete("{id}")]
