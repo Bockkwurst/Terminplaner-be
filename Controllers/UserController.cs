@@ -25,17 +25,25 @@ namespace Terminplaner_be.Controllers
             this._configuration = configuration;
         }
 
-        [HttpPost("register")]
+        [HttpPost]
         public IActionResult Register([FromBody] CreateUserDto userDto)
         {
-            var userModel = new UserEntity();
+            if (userDto == null || string.IsNullOrEmpty(userDto.Username))
+            {
+                return BadRequest("User data is null or Username is missing.");
+            }
 
-            userModel.Password = BCrypt.Net.BCrypt.HashPassword(userDto.Password);
+            var userModel = new UserEntity
+            {
+                Username = userDto.Username,
+                Password = BCrypt.Net.BCrypt.HashPassword(userDto.Password)
+            };
 
             _context.Users.Add(userModel);
             _context.SaveChanges();
             return CreatedAtAction(nameof(GetById), new { id = userModel.Id }, userModel);
         }
+
 
         [HttpGet("{id}")]
         public IActionResult GetById([FromRoute] Guid Id)
