@@ -2,6 +2,8 @@
 using Terminplaner_be.Context;
 using Terminplaner_be.Dtos;
 using Terminplaner_be.Models;
+using Terminplaner_be.Utility;
+using System.Globalization;
 
 namespace Terminplaner_be.Controllers
 {
@@ -24,11 +26,26 @@ namespace Terminplaner_be.Controllers
                 return BadRequest("Appointment Data is null.");
             }
 
+            if (!TimeValidator.IsValidTime(appointmentDto.StartTime))
+            {
+                return BadRequest("Invalid Start Time.");
+            }
+
+            if (!TimeValidator.IsValidTime(appointmentDto.EndTime))
+            {
+                return BadRequest("Invalid End Time.");
+            }
+
+            TimeSpan startTime = TimeSpan.ParseExact(appointmentDto.StartTime, "hh\\:mm", CultureInfo.InvariantCulture);
+            TimeSpan endTime = TimeSpan.ParseExact(appointmentDto.EndTime, "hh\\:mm", CultureInfo.InvariantCulture);
+
             var appointment = new AppointmentEntity
             {
                 Title = appointmentDto.Title,
-                StartDate = appointmentDto.StartDate,
-                EndDate = appointmentDto.EndDate,
+                StartDate = appointmentDto.StartDate.Date,
+                EndDate = appointmentDto.EndDate.Date,
+                StartTime = appointmentDto.StartTime,
+                EndTime = appointmentDto.EndTime,
                 AllDay = appointmentDto.AllDay,
                 Color = appointmentDto.Color,
                 SecondaryColor = appointmentDto.SecondaryColor

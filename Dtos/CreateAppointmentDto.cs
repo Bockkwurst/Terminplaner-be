@@ -9,6 +9,8 @@ namespace Terminplaner_be.Dtos
         public string Title { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public string StartTime { get; set; }
+        public string EndTime { get; set; }
         public bool AllDay { get; set; }
         [HexColor]
         public string Color { get; set; }

@@ -7,6 +7,7 @@ namespace Terminplaner_be.Context
     {
         private readonly string dbPath;
         public DbSet<AppointmentEntity> Appointments { get ; set; }
+        public DbSet<UserEntity> Users { get; set; }
 
         public TerminplanerDbContext() 
         {

@@ -16,11 +16,18 @@ namespace Terminplaner_be.Models
 
         public DateTime EndDate { get; set; }
 
+        public string? StartTime { get; set; }
+        
+        public string? EndTime { get; set; }
+
         public bool AllDay { get; set; }
 
         [HexColor]
         public string? Color { get; set; }
+        
         [HexColor]
         public string? SecondaryColor { get; set; }
+
+        public UserEntity User { get; set; }
     }
 }

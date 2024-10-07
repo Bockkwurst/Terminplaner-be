@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Terminplaner_be.Context;
 
@@ -10,9 +11,11 @@ using Terminplaner_be.Context;
 namespace Terminplaner_be.Migrations
 {
     [DbContext(typeof(TerminplanerDbContext))]
-    partial class TerminplanerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241007105853_FixedCardinality")]
+    partial class FixedCardinality
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.8");

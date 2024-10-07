@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Terminplaner_be.Context;
 
@@ -10,9 +11,11 @@ using Terminplaner_be.Context;
 namespace Terminplaner_be.Migrations
 {
     [DbContext(typeof(TerminplanerDbContext))]
-    partial class TerminplanerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241007092314_AddTimeAndUserEntity")]
+    partial class AddTimeAndUserEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.8");
@@ -48,12 +51,7 @@ namespace Terminplaner_be.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("TEXT");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Appointments");
                 });
@@ -77,22 +75,6 @@ namespace Terminplaner_be.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("Terminplaner_be.Models.AppointmentEntity", b =>
-                {
-                    b.HasOne("Terminplaner_be.Models.UserEntity", "User")
-                        .WithMany("Appointments")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Terminplaner_be.Models.UserEntity", b =>
-                {
-                    b.Navigation("Appointments");
                 });
 #pragma warning restore 612, 618
         }
