@@ -79,7 +79,23 @@ namespace Terminplaner_be.Controllers
                     signingCredentials: signIn
                 );
                 string tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
-                return Ok(new { Token = tokenValue, User = user });
+
+                HttpContext.Response.Cookies.Append("UserGuid", user.Id.ToString(), new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    Expires = DateTime.UtcNow.AddMinutes(60)
+                });
+
+                var userResponse = new
+                {
+                    Id = user.Id,
+                    Username = user.Username,
+                    Appointments = user.Appointments
+                };
+
+                return Ok(new { Token = tokenValue, User = userResponse });
             }
 
             return BadRequest("Invalid login attempt");

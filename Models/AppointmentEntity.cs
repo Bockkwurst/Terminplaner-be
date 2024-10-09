@@ -27,7 +27,7 @@ namespace Terminplaner_be.Models
         
         [HexColor]
         public string? SecondaryColor { get; set; }
-
-        public UserEntity User { get; set; }
+        [Required]
+        public UserEntity User { get; set; } = null!;
     }
 }

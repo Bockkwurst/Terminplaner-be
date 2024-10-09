@@ -4,8 +4,7 @@ namespace Terminplaner_be.Dtos
 {
     public class UserDto
     {
-        public Guid Id { get; set; }
-
-        public string Username { get; set; }
+        public Guid userId { get; set; }
     }
 }
+

@@ -4,6 +4,8 @@ using Terminplaner_be.Dtos;
 using Terminplaner_be.Models;
 using Terminplaner_be.Utility;
 using System.Globalization;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.EntityFrameworkCore;
 
 namespace Terminplaner_be.Controllers
 {
@@ -18,8 +20,8 @@ namespace Terminplaner_be.Controllers
             _context = context;
         }
 
-        [HttpPost]
-        public IActionResult CreateAppointment([FromBody] CreateAppointmentDto appointmentDto)
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateAppointment([FromBody] CreateAppointmentDto? appointmentDto)
         {
             if (appointmentDto == null)
             {
@@ -36,8 +38,20 @@ namespace Terminplaner_be.Controllers
                 return BadRequest("Invalid End Time.");
             }
 
+            var userId = appointmentDto.userId;
+
+            Console.WriteLine($"Received appointmentDto: {appointmentDto}");
+            Console.WriteLine($"userId: {appointmentDto.userId}");
+
             TimeSpan startTime = TimeSpan.ParseExact(appointmentDto.StartTime, "hh\\:mm", CultureInfo.InvariantCulture);
             TimeSpan endTime = TimeSpan.ParseExact(appointmentDto.EndTime, "hh\\:mm", CultureInfo.InvariantCulture);
+
+            string userIdString = userId.ToString();
+
+            if (userIdString == null)
+            {
+                return NotFound($"User with ID {userId} not found.");
+            }
 
             var appointment = new AppointmentEntity
             {
@@ -48,13 +62,37 @@ namespace Terminplaner_be.Controllers
                 EndTime = appointmentDto.EndTime,
                 AllDay = appointmentDto.AllDay,
                 Color = appointmentDto.Color,
-                SecondaryColor = appointmentDto.SecondaryColor
+                SecondaryColor = appointmentDto.SecondaryColor,
+                User = await _context.Users.FirstOrDefaultAsync(u => u.Id == Guid.Parse(userIdString))
             };
 
             _context.Appointments.Add(appointment);
             _context.SaveChanges();
 
             return Ok(appointment);
+        }
+
+        private Guid GetLoggedInUserId()
+        {
+            var token = Request.Cookies["jwt"];
+
+            if (string.IsNullOrEmpty(token))
+            {
+                return Guid.Empty;
+            }
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var securityToken = tokenHandler.ReadToken(token);
+            var jwtSecurityToken = securityToken as JwtSecurityToken;
+
+            var userIdClaim = jwtSecurityToken!.Claims.FirstOrDefault(c => c.Type == "sub");
+
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out Guid userId))
+            {
+                return Guid.Empty;
+            }
+
+            return userId;
         }
 
         [HttpGet("{id}")]
