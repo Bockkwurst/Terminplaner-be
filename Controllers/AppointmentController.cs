@@ -21,7 +21,7 @@ namespace Terminplaner_be.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreateAppointment([FromBody] CreateAppointmentDto? appointmentDto)
+        public async Task<IActionResult> CreateAppointment([FromBody] CreateAppointmentDto appointmentDto)
         {
             if (appointmentDto == null)
             {
@@ -72,29 +72,6 @@ namespace Terminplaner_be.Controllers
             return Ok(appointment);
         }
 
-        private Guid GetLoggedInUserId()
-        {
-            var token = Request.Cookies["jwt"];
-
-            if (string.IsNullOrEmpty(token))
-            {
-                return Guid.Empty;
-            }
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var securityToken = tokenHandler.ReadToken(token);
-            var jwtSecurityToken = securityToken as JwtSecurityToken;
-
-            var userIdClaim = jwtSecurityToken!.Claims.FirstOrDefault(c => c.Type == "sub");
-
-            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out Guid userId))
-            {
-                return Guid.Empty;
-            }
-
-            return userId;
-        }
-
         [HttpGet("{id}")]
         public IActionResult GetAppointmentById(Guid id) 
         {
@@ -107,12 +84,20 @@ namespace Terminplaner_be.Controllers
             return Ok(appointment);
         }
 
-        [HttpGet("all")]
-        public IActionResult GetAllAppointments()
+        [HttpGet("user/{userId}")]
+        public IActionResult GetAllAppointments(Guid userId)
         {
             try
             {
-                var appointments = _context.Appointments.ToList();
+                var appointments = _context.Appointments
+                                           .Where(a => a.User.Id == userId)
+                                           .ToList();
+
+                if (appointments == null || !appointments.Any())
+                {
+                    return NotFound($"No appointments found for user with ID {userId}.");
+                }
+
                 return Ok(appointments);
             }
             catch (Exception ex)
@@ -120,6 +105,7 @@ namespace Terminplaner_be.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
 
         [HttpGet("/search/{title}")]
         public IActionResult GetAppointmentByTitle(string title)
